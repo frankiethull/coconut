@@ -1,0 +1,7 @@
+^coconut\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^[\.]?air\.toml$
+^\.vscode$
+^[.]?air[.]toml$

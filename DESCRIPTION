@@ -1,0 +1,29 @@
+Package: coconut
+Title: Collection Of Cool Optimizers as a Nice Unified Toolkit
+Version: 0.0.0.9000
+Authors@R: 
+    person("frank", "hull", , "frankiethull@gmail.com", role = c("aut", "cre"))
+Description: coconut is designed as unified optimization framework. inspired by other pipeable interfaces in R, but for optimizers. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    ABCoptim,
+    base,
+    cmaes,
+    DEoptim,
+    GA,
+    GenSA,
+    Jaya,
+    lhs,
+    mlrMBO,
+    ParamHelpers,
+    pso,
+    randtoolbox,
+    smoof
+Depends: 
+    R (>= 4.1.0)
+Suggests:
+    DiceKriging,
+    mlr

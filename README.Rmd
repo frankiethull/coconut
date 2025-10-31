@@ -1,0 +1,274 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = TRUE,
+  message = FALSE,
+  #  results = "force",
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# coconut <img src="man/figures/logo.png" align="right" height="222" alt="" />
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of coconut is to optimize with ease.
+
+## Installation
+
+You can install the development version of coconut from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("frankiethull/coconut")
+```
+
+## what is coconut
+
+coconut is a prototype optimizer interface. built with the intent to swap optimizers easily without worrying about individual library minutae. 
+
+staging ols to solve for m & b. 
+```{r example}
+library(coconut)
+set.seed(13)
+
+# hidden parameters to find
+m0 <- .20
+b0 <- 10
+
+x <- rnorm(n = 30) * 100
+y <- m0 * x + b0
+
+line <- function(par) {
+  m <- par[1]
+  b <- par[2]
+
+  ## see if model can find m and b by shrinking SSE
+  sse <- sum((y - (x * m + b))^2)
+  sse
+}
+
+```
+
+typical linear model solution:
+```{r}
+# solving for b0 & m0
+lm_analytic <- lm(y ~ x)
+lm_analytic$coefficients
+```
+
+
+coconut is designed to minimize/maximize an objective function for any optimizer. various kinds of optimizers are scattered across various individual packages in R. supported optimizers are showcased below. 
+
+### optimization methods
+
+#### Standards 
+base R supported optimizers
+```{r}
+result <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("standard") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    initial = c(0, 0),
+    pop_size = 50,
+    max_iter = 200
+  ) |>
+  coco_search()
+
+print(result)
+```
+
+#### Differential Evolution
+based on {DEoptim}
+```{r}
+result_de <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("differential_evolution") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 50,
+    max_iter = 200,
+    initial = c(0, 0), # not necessary for DE
+    # method control is experimental entry for some optimizers
+    method_control = list(strategy = 2) # DEoptim-specific control
+  ) |>
+  coco_search()
+
+print(result_de)
+```
+
+#### Particle Swarm
+based on {pso}
+```{r}
+result_pso <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("particle_swarm") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0),
+    method_control = list(w = 0.01) # PSO-specific inertia weight,
+  ) |>
+  coco_search()
+
+print(result_pso)
+```
+
+#### Artificial Bee Colony
+based on {ABCoptim}
+```{r}
+result_abc <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("bee_colony") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0)
+  ) |>
+  coco_search()
+
+print(result_abc)
+```
+
+
+#### Genetic Algorithm
+based on {GA}
+```{r}
+result_ga <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("genetic_algorithm") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 30),
+    pop_size = 40,
+    max_iter = 200,
+    initial = c(0, 0)
+  ) |>
+  coco_search()
+
+print(result_ga)
+```
+
+#### Jaya
+based on {Jaya}
+```{r}
+result_jaya <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("jaya") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0) # not necessary for jaya
+  ) |>
+  coco_search()
+
+print(result_jaya)
+```
+
+#### Covariance Matrix Adapting Evolution Strategy
+based on {cmaes}
+```{r}
+result_cma <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("cma_es") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0),
+    method_control = list(lambda = 40) # num of offspring (greater than pop size)
+  ) |>
+  coco_search()
+
+print(result_cma)
+```
+
+
+
+#### Generalized Simulated Annealing
+based on {GenSA}
+```{r}
+result_gsa <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("generalized_annealing") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0)
+  ) |>
+  coco_search()
+
+print(result_gsa)
+```
+
+#### Bayesian Optimization
+based on {mlrMBO}
+```{r}
+result_bayes <-
+  coco_mode(objective = line, mode = "minimize") |>
+  coco_method("bayesian") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    initial = c(0, 0) # ignored for bayes, instead creates a mesh of points across the lb/ub range
+  ) |>
+  coco_search()
+
+print(result_bayes)
+```
+
+
+### initializers + workflows
+
+initializers may come in handy when searching for a global optima & objectives have many local optimas. 
+
+```{r}
+# Generate initial points using coco_initial
+initial_points <- coco_initial(
+  n = 10,
+  lb = c(-5, -5),
+  ub = c(5, 5),
+  method = "lhs"
+)
+
+# Create base spec
+base_spec <- coco_mode(objective = line, mode = "minimize") |>
+  coco_method("particle_swarm") |>
+  coco_params(
+    lower = c(-5, -5),
+    upper = c(5, 20),
+    pop_size = 30,
+    max_iter = 100,
+    method_control = list(w = 0.7) # PSO-specific inertia weight
+  )
+
+# Run workflow for parameter search
+result_workflow <- coco_workflow(base_spec, initial_points, return = "best")
+print(result_workflow)
+```
+
+
+*coconut loosely stands for a '**c**ollection **o**f **c**ool/complex/continuous/creative **o**ptimizers as a **n**ice **u**nified **t**oolkit'.*
